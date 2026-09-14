@@ -1,0 +1,90 @@
+import {useState} from "react"
+
+export default function XanXan(){
+
+    const [texto, setTexto] = useState("")
+    const [arquivo, setArquivo] = useState(null)
+    const [textocorrigido, setTextocorrigido] = useState("")
+    const [loading, setLoading] = useState("")
+
+    const URL = "https://api.groq.com/openai/v1/chat/completions" 
+    const API_KEY = import.meta.env.VITE_GROQ_API_KEY
+
+    function aocolocararquivo(evento){
+        setArquivo(evento.target.files[0])
+    }
+
+
+    function aodigitar(evento){
+        setTexto(evento.target.value)
+    }
+        
+    function aoclickar(){
+        setLoading(true)
+        identificarFormato(texto)
+    }
+    
+    
+    async function identificarFormato(texto) {
+        const resposta = await fetch(URL, 
+            {
+            method: "POST",
+            headers: {
+                    "Content-Type": "application/json",
+                    
+                    "Authorization": `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        {
+                            role: "user",
+                            content: `O usuário digitou o seguinte texto tentando indicar um formato de arquivo: "${texto}".
+                            Responda APENAS com a extensão do formato de arquivo, em minúsculas, sem aspas, sem pontuação, sem explicação nenhuma antes ou depois.  
+                            Exemplos de resposta correta: pdf
+                            jpg
+                            docx
+                            Se não for possível identificar um formato de arquivo válido, responda apenas: invalido`
+                        }
+                    ],
+                    temperature: 0.1 
+                })
+            })
+        const dados = await resposta.json()
+        const textoResposta = dados.choices[0].message.content
+        setTextocorrigido(textoResposta.trim())
+        return textoResposta.trim()
+    }
+
+
+
+
+
+    
+    
+return(
+<div>
+    {!arquivo && !textocorrigido && !loading &&
+        <input type="file" onChange={aocolocararquivo}/>
+    }
+
+    {arquivo && !textocorrigido && !loading &&
+        <div>
+            <h2>Para qual arquivo deseja tranformar?</h2> 
+            <input type="text" onChange={aodigitar}/>
+            <button onClick={aoclickar}>Enviar</button>
+        </div>  
+    }
+
+    {loading && 
+        <h2>gerando arquivo...</h2>
+    }
+
+    {textocorrigido && 
+        <h2>Aqui esta seu arquivo de para {textocorrigido}</h2>
+    }
+</div>
+
+)
+}
