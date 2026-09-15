@@ -9,7 +9,6 @@ export default function XanXan(){
     const [loading, setLoading] = useState("")
     const [formatoarquivo, setFormatoarquivo] = useState("")
 
-    const URL = "https://api.groq.com/openai/v1/chat/completions" 
     const API_KEY = import.meta.env.VITE_GROQ_API_KEY
 
     function aocolocararquivo(evento){
@@ -27,13 +26,21 @@ export default function XanXan(){
         identificarFormato(texto)
     }
     
+    function baixararquivo(){
+        const url = URL.createObjectURL(arquivo)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = `arquivo-covertido.${formatoarquivo}`
+        link.click()
+        URL.revokeObjectURL(url)
+    }
     async function indentificarformatoarquivo(arquivo){
         const retornoFileType = await fileTypeFromBlob(arquivo)
         setFormatoarquivo(retornoFileType.ext)
         }
 
     async function identificarFormato(texto) {
-        const resposta = await fetch(URL, 
+        const resposta = await fetch("https://api.groq.com/openai/v1/chat/completions", 
             {
             method: "POST",
             headers: {
@@ -92,7 +99,10 @@ return(
     }
 
     {textocorrigido && 
-        <h2>Aqui esta, o seu arquivo foi de {formatoarquivo} para {textocorrigido}</h2>
+        <div>
+            <h2>Aqui esta, o seu arquivo foi de {formatoarquivo} para {textocorrigido}</h2>
+            <button onClick={baixararquivo}>baixar arquivo</button>
+        </div>
     }
 </div>
 
