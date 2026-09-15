@@ -36,7 +36,7 @@ export default function XanXan(){
                 },
                 body: JSON.stringify({
                     
-                    model: "llama-3.3-70b-versatile",
+                    model: "openai/gpt-oss-120b",
                     messages: [
                         {
                             role: "user",
@@ -45,6 +45,7 @@ export default function XanXan(){
                             Exemplos de resposta correta: pdf
                             jpg
                             docx
+                            Se possivel indentificar erro de digitação, corrigir, exemplo: pdff, world
                             Se não for possível identificar um formato de arquivo válido, responda apenas: invalido`
                         }
                     ],
@@ -54,7 +55,9 @@ export default function XanXan(){
         const dados = await resposta.json()
         const textoResposta = dados.choices[0].message.content
         setTextocorrigido(textoResposta.trim())
+        setLoading(false)
         return textoResposta.trim()
+        
     }
 
 
