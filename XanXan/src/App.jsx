@@ -1,4 +1,5 @@
 import {useState} from "react"
+import {fileTypeFromBlob} from "file-type";
 
 export default function XanXan(){
 
@@ -6,12 +7,14 @@ export default function XanXan(){
     const [arquivo, setArquivo] = useState(null)
     const [textocorrigido, setTextocorrigido] = useState("")
     const [loading, setLoading] = useState("")
+    const [formatoarquivo, setFormatoarquivo] = useState("")
 
     const URL = "https://api.groq.com/openai/v1/chat/completions" 
     const API_KEY = import.meta.env.VITE_GROQ_API_KEY
 
     function aocolocararquivo(evento){
         setArquivo(evento.target.files[0])
+        indentificarformatoarquivo(evento.target.files[0])
     }
 
 
@@ -24,7 +27,11 @@ export default function XanXan(){
         identificarFormato(texto)
     }
     
-    
+    async function indentificarformatoarquivo(arquivo){
+        const retornoFileType = await fileTypeFromBlob(arquivo)
+        setFormatoarquivo(retornoFileType.ext)
+        }
+
     async function identificarFormato(texto) {
         const resposta = await fetch(URL, 
             {
@@ -85,7 +92,7 @@ return(
     }
 
     {textocorrigido && 
-        <h2>Aqui esta seu arquivo de para {textocorrigido}</h2>
+        <h2>Aqui esta, o seu arquivo foi de {formatoarquivo} para {textocorrigido}</h2>
     }
 </div>
 
