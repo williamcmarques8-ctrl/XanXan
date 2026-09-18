@@ -3,38 +3,39 @@ import {fileTypeFromBlob} from "file-type";
 
 export default function XanXan(){
 
+    // guarda para formato de arquivo deseja tranformar
     const [texto, setTexto] = useState("")
+
+    // guarda o file
     const [arquivo, setArquivo] = useState(null)
+
+    //guarda para formato de arquivo deseja tranformar depois da API
     const [textocorrigido, setTextocorrigido] = useState("")
-    const [loading, setLoading] = useState("")
+
+    //true enquanto a api estiver carregando
+    const [loading, setLoading] = useState(false)
+
+    //Guarda o formato do arquivo posto
     const [formatoarquivo, setFormatoarquivo] = useState("")
+
+    //Guarda o nome do arquivo file
     const [antigonome, setAntigonome] = useState("")
+
+    //Guarda o nome do arquivo file corrigido
     const [nome, setNome] = useState("")
-    const [textocerto, setTextocerto] = useState(false)
+    
 
     const API_KEY = import.meta.env.VITE_GROQ_API_KEY
     
 
+
+    // Funções ao coloca o arquivo
     function aocolocararquivo(evento){
         setArquivo(evento.target.files[0])
         indentificarformatoarquivo(evento.target.files[0])
         setAntigonome(evento.target.files[0].name)  
     }
 
-    function aodigitar(evento){
-        setTexto(evento.target.value)
-    }
-
-    function limpararquivo() {
-        setArquivo(null)
-    }
-        
-    function aoclickar(){
-        setLoading(true)
-        identificarFormato(texto)
-        nomearquivo(antigonome)
-    }
-    
     async function indentificarformatoarquivo(arquivo){
         const retornoFileType = await fileTypeFromBlob(arquivo)
         if (retornoFileType === undefined) {
@@ -46,22 +47,26 @@ export default function XanXan(){
         }
     }
 
-    function nomearquivo(nome) {
-        var nomesplit = nome.split(".")
-        nomesplit.pop()
-        var nomejoin = nomesplit.join(" ")
-        setNome(nomejoin)
-    }   
-
-    function baixararquivo(){
-        const url = URL.createObjectURL(arquivo)
-        const link = document.createElement("a")
-        link.href = url
-        link.download = `${nome}.${textocorrigido}`
-        link.click()
-        URL.revokeObjectURL(url)
+    function limpararquivo() {
+        setArquivo(null)
     }
 
+
+
+    // função ao digitar
+    function aodigitar(evento){
+        setTexto(evento.target.value)
+    }
+
+    
+
+    // funçoes apos clickar no botão que fala o nomo de arquivo
+    function aoclickar(){
+        setLoading(true)
+        identificarFormato(texto)
+        nomearquivo(antigonome)
+    }
+    
     async function identificarFormato(texto) {
         const resposta = await fetch("https://api.groq.com/openai/v1/chat/completions", 
             {
@@ -95,6 +100,25 @@ export default function XanXan(){
         setLoading(false)
     }
 
+    function nomearquivo(nome) {
+        var nomesplit = nome.split(".")
+        nomesplit.pop()
+        var nomejoin = nomesplit.join(" ")
+        setNome(nomejoin)
+    }   
+
+
+    // outras funções
+    function baixararquivo(){
+        const url = URL.createObjectURL(arquivo)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = `${nome}.${textocorrigido}`
+        link.click()
+        URL.revokeObjectURL(url)
+    }
+
+
 return(
     
 <div>
@@ -109,7 +133,7 @@ return(
         <input type="file" onChange={aocolocararquivo}/>
     }
     
-    {formatoarquivo != "invalido" && arquivo && !textocorrigido && !loading && !textocerto &&
+    {formatoarquivo != "invalido" && arquivo && !textocorrigido && !loading && 
         <div>
             <h2>Para qual arquivo deseja tranformar?</h2> 
             <input type="text" onChange={aodigitar}/>
@@ -121,7 +145,7 @@ return(
         <h2>gerando arquivo...</h2>
     }
 
-    {textocorrigido && textocerto &&
+    {textocorrigido && 
         <div>
             <h2>Aqui esta, o seu arquivo foi de {formatoarquivo} para {textocorrigido}</h2>
             <button onClick={baixararquivo}>baixar arquivo</button>
