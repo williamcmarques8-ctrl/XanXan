@@ -8,6 +8,7 @@ public class XanXanBackApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(XanXanBackApplication.class, args);
+		
 	}
 
 }
