@@ -60,11 +60,13 @@ export default function XanXan(){
     
 
     // funçoes apos clickar no botão que fala o nomo de arquivo
-    function aoclickar(){
+    async function aoclickar(){
         setLoading(true)
-        identificarFormato(texto)
+        await identificarFormato(texto)
+        await converteArquivo(arquivo)
         nomearquivo(antigonome)
         setTextocorrigido("")
+        setLoading(false)
     }
     
     async function identificarFormato(texto) {
@@ -97,7 +99,18 @@ export default function XanXan(){
         const dados = await resposta.json()
         const textoResposta = dados.choices[0].message.content
         setTextocorrigido(textoResposta.trim())
-        setLoading(false)
+    }
+
+    async function converteArquivo(arquivo){
+        const dadosParaEnviar = new FormData()
+        dadosParaEnviar.append("file",arquivo)
+        const arquivoConvertido = await fetch("http://localhost:8080/upload",
+            {
+                method: "POST",
+                body: dadosParaEnviar
+            }
+            
+        )
     }
 
     function nomearquivo(nome) {
