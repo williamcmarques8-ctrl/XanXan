@@ -2,7 +2,6 @@ import {useState} from "react"
 import {fileTypeFromBlob} from "file-type";
 
 export default function XanXan(){
-
     const API_KEY = import.meta.env.VITE_GROQ_API_KEY
 
     //guarda para qual formato de arquivo deseja tranformar
@@ -26,6 +25,8 @@ export default function XanXan(){
     //true enquanto a api estiver carregando
     const [loading, setLoading] = useState(false)
 
+    //arquivo convertido
+    const [arquivoFinal, setArquivoFinal] = useState(null)
 
 
     // Funções ao coloca o arquivo
@@ -65,8 +66,8 @@ export default function XanXan(){
         await identificarFormato(texto)
         await converteArquivo(arquivo)
         nomearquivo(antigonome)
-        setTextocorrigido("")
         setLoading(false)
+        
     }
     
     async function identificarFormato(texto) {
@@ -99,18 +100,23 @@ export default function XanXan(){
         const dados = await resposta.json()
         const textoResposta = dados.choices[0].message.content
         setTextocorrigido(textoResposta.trim())
+        
     }
 
     async function converteArquivo(arquivo){
         const dadosParaEnviar = new FormData()
         dadosParaEnviar.append("file",arquivo)
-        const arquivoConvertido = await fetch("http://localhost:8080/upload",
+        const arquivoConvertidoCru = await fetch("http://localhost:8080/upload",
             {
                 method: "POST",
                 body: dadosParaEnviar
+                
             }
             
         )
+        const arquivoConvertido = await arquivoConvertidoCru.text()
+        setArquivoFinal(arquivoConvertido)
+        console.log(arquivoConvertido)
     }
 
     function nomearquivo(nome) {
@@ -148,13 +154,13 @@ return(
     </div>
     }
 
-    {textocorrigido === "invalido" &&
+    {textocorrigido === "invalido" && !loading &&
         <div>
             <h2>Não existe o formato de arquivo que você enseriu</h2>
         </div>
     }
     
-    {((formatoarquivo != "invalido" && arquivo && !textocorrigido  && !loading) || (textocorrigido === "invalido")) && (
+    {((formatoarquivo != "invalido" && arquivo && !textocorrigido  && !loading) || (textocorrigido === "invalido" && !loading)) && (
         <div>
             <h2>Para qual arquivo deseja tranformar?</h2> 
             <input type="text" onChange={aodigitar}/>
@@ -163,14 +169,14 @@ return(
     )
     }
     
-    {loading && 
+    {loading &&
     <div>
         <h2>gerando arquivo...</h2>
     </div>
         
     }
 
-    {textocorrigido && textocorrigido != "invalido" && 
+    {textocorrigido && textocorrigido != "invalido" && arquivoFinal && !loading &&
         <div>
             <h2>Aqui esta, o seu arquivo foi de {formatoarquivo} para {textocorrigido}</h2>
             <button onClick={baixararquivo}>baixar arquivo</button>
