@@ -64,7 +64,7 @@ export default function XanXan(){
     async function aoclickar(){
         setLoading(true)
         await identificarFormato(texto)
-        await converteArquivo(arquivo)
+        await converteArquivo(arquivo,textocorrigido)
         nomearquivo(antigonome)
         setLoading(false)
         
@@ -103,9 +103,10 @@ export default function XanXan(){
         
     }
 
-    async function converteArquivo(arquivo){
+    async function converteArquivo(f,n){
         const dadosParaEnviar = new FormData()
-        dadosParaEnviar.append("file",arquivo)
+        dadosParaEnviar.append("file",f)
+        dadosParaEnviar.append("name",n)
         const arquivoConvertidoCru = await fetch("http://localhost:8080/upload",
             {
                 method: "POST",
@@ -116,7 +117,7 @@ export default function XanXan(){
         )
         const arquivoConvertido = await arquivoConvertidoCru.text()
         setArquivoFinal(arquivoConvertido)
-        console.log(arquivoConvertido)
+        console.log(dadosParaEnviar)
     }
 
     function nomearquivo(nome) {

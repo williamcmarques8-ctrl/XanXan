@@ -10,9 +10,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 public class XanXanBackController{
+    
     @CrossOrigin(origins = "http://localhost:5173")
     @PostMapping("/upload")
-    public String uploadFile(@RequestParam("file") MultipartFile file){
-        return file.getOriginalFilename();
+    public String uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("name") String name){
+        return name;
     }
 }
